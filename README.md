@@ -1,1 +1,1 @@
-My Esri JS Map accesssing AGOL
+My Esri JS Map writing to AGOL
