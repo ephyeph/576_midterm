@@ -206,11 +206,21 @@
       map.add(heliportLayer);
 
       
+      // myAirport icon
+      const myAirportRenderer = {
+      type: "simple",
+      symbol: {
+        type: "picture-marker",
+        url: "https://ephyeph.github.io/576_lab2/star.png", // Example airport icon
+        width: "18px",
+        height: "18px"
+      }
+      };
+
       // MyAiport
       const myAirports = new FeatureLayer ({
         url: "https://services.arcgis.com/HRPe58bUyBqyyiCt/arcgis/rest/services/My_Aiports/FeatureServer",
-
-        
+        renderer: myAirportRenderer,
         outFields: ["AirportCode"],
 
       })
@@ -230,7 +240,7 @@
 
       // Add the widget to the view
       view.ui.add(editor, "top-right");
-      
+
     });
   </script>
 
