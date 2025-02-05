@@ -217,7 +217,7 @@
       }
       };
 
-      // MyAiport
+      // MyAirport
       const myAirports = new FeatureLayer ({
         url: "https://services.arcgis.com/HRPe58bUyBqyyiCt/arcgis/rest/services/My_Aiports/FeatureServer",
         renderer: myAirportRenderer,
@@ -243,9 +243,7 @@
         labelExpressionInfo: {
           expression: "$feature.AirportCode" // Display AirportCode attribute
         },
-        minScale: 500000  // Adjust scale to control when labels appear
-      }
-        ];
+      }];
 
       // Set the point layer's LayerInfo
       const pointInfos = {
