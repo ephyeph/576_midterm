@@ -227,6 +227,26 @@
 
       map.add(myAirports);
 
+      // myAirports label layer
+      myAirports.labelingInfo = [
+      {
+        symbol: {
+          type: "text", // Label as text
+          color: "black",
+          haloColor: "white",
+          haloSize: "1px",
+          font: {
+            size: 10,
+            weight: "bold"
+          }
+        },
+        labelExpressionInfo: {
+          expression: "$feature.AirportCode" // Display AirportCode attribute
+        },
+        minScale: 500000  // Adjust scale to control when labels appear
+      }
+        ];
+
       // Set the point layer's LayerInfo
       const pointInfos = {
       layer: myAirports
