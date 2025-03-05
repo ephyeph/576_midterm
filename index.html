@@ -45,7 +45,7 @@
 
       // Indiana State Boundary Layer (Use a public GIS service)
       const indianaBoundary = new FeatureLayer({
-        url: "https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/USA_StateBoundaries/FeatureServer/0",
+        url: "https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/USA_States_Generalized_Boundaries/FeatureServer",
         definitionExpression: "STATE_NAME = 'Indiana'", // Filters to show only Indiana
         opacity: 0.5,
         outFields: ["STATE_NAME"]
