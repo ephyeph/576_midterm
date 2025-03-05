@@ -28,8 +28,14 @@
       esriConfig.apiKey = "AAPTxy8BH1VEsoebNVZXo8HurAToSzqkTfSfYwvNstkcR6B4ROIes9biB3If_N2cV-B63mJzpZpDOtLwC_2C9EnaHPnt2OXEAHjx0qnFmEGQr2RZBKmlLMgg2Gu2iEhgQ6UivYDgZkFDjZ-h_e4R3DeIg-Oaoyw9Tp7nKvieG0wdJWpkzbWNz_Bbf9Fj7CnRQsM2g4efU5bpGMJBigWp7Ftb7cYxuP24i7-Kehkkg8_jfyUo_XMFw1hUEphPpgvCbyVKAT1_4Ere8WRH";
       
       // Create a new Map instead of WebMap
+      const basemap = new Basemap({
+        portalItem: {
+          id: "46685b33a34b41cfae96c667f5506c78"
+        }
+      })
+      
       const map = new Map({
-        basemap: "gray-vector" // Alternative basemap if the previous one doesn't work
+        basemap: basemap
       });
 
       const view = new MapView({
@@ -42,10 +48,12 @@
         }
       });
 
+
+      /*
       // Indiana State Boundary Layer (Use a public GIS service)
       const indianaBoundary = new FeatureLayer({
         url: "https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/USA_States_Generalized_Boundaries/FeatureServer",
-        definitionExpression: "STATE_ABBR = 'IN'", // Filters to show only Indiana
+        definitionExpression: "STATE_ABBR = IN", // Filters to show only Indiana
         renderer: {
           type: "simple",
           symbol: {
@@ -62,6 +70,8 @@
 
       // Add layers to the map
       map.add(indianaBoundary);
+        */
+
 
       // Define a pop-up for usaeduLayer
       const popupEduusa = {
