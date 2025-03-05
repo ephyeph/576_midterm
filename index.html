@@ -74,27 +74,27 @@
       map.add(indianaBoundary);
         */
 
+        // Define a pop-up for usaeduLayer
+        const popupEduusa = {
+        "title": "EDUs",
+        "content": 
+          "<b>Name:</b> {INSTNM}<br><b>Institution Size:</b> {INSTSIZE}<br><b>Highest level offered:</b> {HLOFFER}<br><b>Website:</b> {WEBADDR}<br>"
+      }
 
-      // Define a pop-up for usaeduLayer
-      const popupEduusa = {
-        title: "Educational Institution",
-        content: 
-          "<b>Name:</b> {INSTNM}<br>" +
-          "<b>Institution Size:</b> {INSTSIZE}<br>" +
-          "<b>Highest level offered:</b> {HLOFFER}<br>" +
-          "<b>Website:</b> {WEBADDR}<br>"
-      };
+      //adding the Const for the feature layer
+      const usaeduLayer = new FeatureLayer({
+      url: "https://services2.arcgis.com/FiaPA4ga0iQKduv3/arcgis/rest/services/Colleges_and_Universities_View/FeatureServer",
+      
+      // Filter only Indiana institutions
+      definitionExpression: "STATE = 'IN'",
 
-      // Create a new FeatureLayer for Indiana Educational Institutions
-      const indianaEduLayer = new FeatureLayer({
-        url: "https://services2.arcgis.com/FiaPA4ga0iQKduv3/arcgis/rest/services/Colleges_and_Universities_View/FeatureServer",
-        
-        // Add a definition expression to filter only Indiana institutions
-        definitionExpression: "STATE = 'IN'",
-        
-        outFields: ["INSTNM", "INSTSIZE", "HLOFFER", "WEBADDR", "STATE"],
-        popupTemplate: popupEduusa
+      //adding the popup here
+      outFields: ["INSTNM","INSTSIZE","HLOFFER","WEBADDR"],
+      popupTemplate: popupEduusa
       });
+
+      webMap.add(usaeduLayer);
+        
 
       // Add the Indiana Educational Institutions layer to the map
       map.add(indianaEduLayer);
