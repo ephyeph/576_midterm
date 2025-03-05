@@ -23,20 +23,18 @@
     "esri/layers/FeatureLayer",
     "esri/widgets/Editor",
     "esri/widgets/Legend"   
-    ], function(esriConfig, WebMap, Map, MapView, Graphic, GraphicsLayer, FeatureLayer, Editor, Legend) {
+    ], function(esriConfig, Map, WebMap, MapView, Graphic, GraphicsLayer, FeatureLayer, Editor, Legend) {
 
       esriConfig.apiKey = "AAPTxy8BH1VEsoebNVZXo8HurAToSzqkTfSfYwvNstkcR6B4ROIes9biB3If_N2cV-B63mJzpZpDOtLwC_2C9EnaHPnt2OXEAHjx0qnFmEGQr2RZBKmlLMgg2Gu2iEhgQ6UivYDgZkFDjZ-h_e4R3DeIg-Oaoyw9Tp7nKvieG0wdJWpkzbWNz_Bbf9Fj7CnRQsM2g4efU5bpGMJBigWp7Ftb7cYxuP24i7-Kehkkg8_jfyUo_XMFw1hUEphPpgvCbyVKAT1_4Ere8WRH";
       
-      
-      const webMap = new WebMap({
-        portalItem: {
-          id: "cb877b5b093a4cd8a9c9baf1f1be00c4" // Colored Pencil basemap
-        }
+      // Create a new Map instead of WebMap
+      const map = new Map({
+        basemap: "gray-vector" // Alternative basemap if the previous one doesn't work
       });
 
       const view = new MapView({
         container: "viewDiv",
-        map: webMap,
+        map: map, // Use the new map object
         center: [-86.1268, 40.2672], // Approximate center of Indiana
         zoom: 7, // Adjusted zoom level to fit the state
         constraints: {
@@ -53,71 +51,40 @@
       });
 
       // Add layers to the map
-      webMap.add(indianaBoundary);
+      map.add(indianaBoundary);
 
-       // Point 
-        const graphicsLayer = new GraphicsLayer();  
-        webMap.add(graphicsLayer);
-
-        const point = { //Create a point  
-          type: "point",  
-          longitude: -97.750689,    //long lat of Stevie Ray Vaughan Statue
-          latitude: 30.263098
-        };
-
-        const simpleMarkerSymbol = {  
-          type: "simple-marker",
-          style: "square",  
-          color: [0, 0, 139],  // Color of blues rock
-          outline: {  
-            color: [255, 255, 255], // White  
-            width: 1
-          }  
-        };
-
-        const popupTemplate = {
-          title: "{Name}",
-          content: "{Description}"
-      }
-      const attributes = {
-          Name: "Stevie Ray Vaughan Statue",
-          Description: "A bronze sculpture of Stevie Ray Vaughan by Ralph Helmick"
-      }
-
-        const pointGraphic = new Graphic({  
-          // creating the point
-          geometry: point,  
-          symbol: simpleMarkerSymbol,
-          
-          //adding popup properties
-          attributes: attributes,
-          popupTemplate: popupTemplate
-        });
-
-        graphicsLayer.add(pointGraphic);
-
-  
-        
       // Define a pop-up for usaeduLayer
       const popupEduusa = {
-        "title": "EDUs",
-        "content": 
-          "<b>Name:</b> {INSTNM}<br><b>Institution Size:</b> {INSTSIZE}<br><b>Highest level offered:</b> {HLOFFER}<br><b>Website:</b> {WEBADDR}<br>"
-      }
+        title: "Educational Institution",
+        content: 
+          "<b>Name:</b> {INSTNM}<br>" +
+          "<b>Institution Size:</b> {INSTSIZE}<br>" +
+          "<b>Highest level offered:</b> {HLOFFER}<br>" +
+          "<b>Website:</b> {WEBADDR}<br>"
+      };
 
-      //adding the Const for the feature layer
-      const usaeduLayer = new FeatureLayer({
-      url: "https://services2.arcgis.com/FiaPA4ga0iQKduv3/arcgis/rest/services/Colleges_and_Universities_View/FeatureServer",
-
-      //adding the popup here
-      outFields: ["INSTNM","INSTSIZE","HLOFFER","WEBADDR"],
-      popupTemplate: popupEduusa
+      // Create a new FeatureLayer for Indiana Educational Institutions
+      const indianaEduLayer = new FeatureLayer({
+        url: "https://services2.arcgis.com/FiaPA4ga0iQKduv3/arcgis/rest/services/Colleges_and_Universities_View/FeatureServer",
+        
+        // Add a definition expression to filter only Indiana institutions
+        definitionExpression: "STATE = 'IN'",
+        
+        outFields: ["INSTNM", "INSTSIZE", "HLOFFER", "WEBADDR", "STATE"],
+        popupTemplate: popupEduusa
       });
 
-      webMap.add(usaeduLayer);
+      // Add the Indiana Educational Institutions layer to the map
+      map.add(indianaEduLayer);
 
-});
-
+      // Optional: Add a legend widget
+      view.when(() => {
+        const legend = new Legend({
+          view: view
+        });
+        view.ui.add(legend, "bottom-right");
+      });
+    });
   </script>
 
   <!-- css to make a full screen map -->
@@ -131,12 +98,9 @@
       width: 100%;
     }
   </style>
-
 </head>
 <body>
-
   <!-- the div to displays the map  -->
   <div id="viewDiv"></div>
-
 </body>
 </html>
