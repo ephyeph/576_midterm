@@ -1,1 +1,1 @@
-My Esri JS Map writing to AGOL
+576 midterm: Indiana School & University Experience Mapper
