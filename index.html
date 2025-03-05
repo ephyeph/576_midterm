@@ -26,7 +26,7 @@
 
       esriConfig.apiKey = "AAPTxy8BH1VEsoebNVZXo8HurAToSzqkTfSfYwvNstkcR6B4ROIes9biB3If_N2cV-B6ipYFe5GxDfRQiFgMLzTH6209fM3ClJKM-5YVMCzcOH7TQJEzY_qITLgYuQ_O9Xc5pVnekDPHAHkxAHDnvNA75kDs-EylJ1L49ZjNHnKCjyjVY6f81joHIiGPr7X5LCYlO4x-mAxxUdWzT2Z-9uZmZbE5hUIYo-Gxuw7YZTMPp-UiNH6nce_c6lf5QtuX-hPTAT1_drTNujqi";
       const map = new Map({
-        basemap: "arcgis-topographic" // Basemap layer
+        basemap: "arcgis-colored pencil" // Basemap layer
       });
 
       const view = new MapView({
@@ -50,20 +50,6 @@
       // Add layers to the map
       map.add(indianaBoundary);
 
-      // Optional: Prevents users from panning outside Indiana
-      view.watch("extent", function(extent) {
-        const maxExtent = {
-          xmin: -89.0, xmax: -84.5,
-          ymin: 37.5, ymax: 42.0,
-          spatialReference: { wkid: 4326 }
-        };
-        if (!view.extent.intersects(maxExtent)) {
-          view.extent = maxExtent;
-
-        }
-      });
-
-      
        // Point 
         const graphicsLayer = new GraphicsLayer();  
         map.add(graphicsLayer);
