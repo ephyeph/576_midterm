@@ -25,8 +25,12 @@
     ], function(esriConfig,Map, MapView, Graphic, GraphicsLayer, FeatureLayer, Editor, Legend) {
 
       esriConfig.apiKey = "AAPTxy8BH1VEsoebNVZXo8HurAToSzqkTfSfYwvNstkcR6B4ROIes9biB3If_N2cV-B63mJzpZpDOtLwC_2C9EnaHPnt2OXEAHjx0qnFmEGQr2RZBKmlLMgg2Gu2iEhgQ6UivYDgZkFDjZ-h_e4R3DeIg-Oaoyw9Tp7nKvieG0wdJWpkzbWNz_Bbf9Fj7CnRQsM2g4efU5bpGMJBigWp7Ftb7cYxuP24i7-Kehkkg8_jfyUo_XMFw1hUEphPpgvCbyVKAT1_4Ere8WRH";
-      const map = new Map({
-        basemap: "arcgis-colored pencil" // Basemap layer
+      
+      
+      const webMap = new WebMap({
+        portalItem: {
+          id: "cb877b5b093a4cd8a9c9baf1f1be00c4" // Colored Pencil basemap
+        }
       });
 
       const view = new MapView({
