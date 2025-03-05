@@ -36,7 +36,7 @@
 
       const view = new MapView({
         container: "viewDiv",
-        map: map,
+        map: webMap,
         center: [-86.1268, 40.2672], // Approximate center of Indiana
         zoom: 7, // Adjusted zoom level to fit the state
         constraints: {
@@ -113,6 +113,8 @@
       outFields: ["INSTNM","INSTSIZE","HLOFFER","WEBADDR"],
       popupTemplate: popupEduusa
       });
+
+      webMap.add(usaeduLayer);
 
 });
 
