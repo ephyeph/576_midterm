@@ -2,118 +2,15 @@
 <html lang="en">
 <head>
   <title>Indiana School & University Experience Mapper</title>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta name="description" content="" />
-
-  <!-- calls for the arcgis api's CSS file and JS library. -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <!-- ArcGIS API -->
   <link rel="stylesheet" href="https://js.arcgis.com/4.25/esri/themes/light/main.css">
   <script src="https://js.arcgis.com/4.25/"></script>
 
-  <!-- Adding the modules, API key, and map constant needed for a full screen map app -->
-  <script>
-  
-  require([  
-    "esri/config",  
-    "esri/Map",
-    "esri/WebMap",  
-    "esri/views/MapView",   
-    "esri/Graphic",
-    "esri/portal/PortalItem",
-    "esri/Basemap",  
-    "esri/layers/GraphicsLayer",
-    "esri/layers/FeatureLayer",
-    "esri/widgets/Editor",
-    "esri/widgets/Legend"   
-    ], function(esriConfig, Map, PortalItem, Basemap, WebMap, MapView, Graphic, GraphicsLayer, FeatureLayer, Editor, Legend) {
-
-      esriConfig.apiKey = "AAPTxy8BH1VEsoebNVZXo8HurAToSzqkTfSfYwvNstkcR6B4ROIes9biB3If_N2cV-B63mJzpZpDOtLwC_2C9EnaHPnt2OXEAHjx0qnFmEGQr2RZBKmlLMgg2Gu2iEhgQ6UivYDgZkFDjZ-h_e4R3DeIg-Oaoyw9Tp7nKvieG0wdJWpkzbWNz_Bbf9Fj7CnRQsM2g4efU5bpGMJBigWp7Ftb7cYxuP24i7-Kehkkg8_jfyUo_XMFw1hUEphPpgvCbyVKAT1_4Ere8WRH";
-      
-      // Create a new Map instead of WebMap
-      const basemap = new Basemap({
-        portalItem: {
-          id: "46685b33a34b41cfae96c667f5506c78"
-        }
-      })
-      
-      const map = new Map({
-        basemap: basemap
-      });
-
-      const view = new MapView({
-        container: "viewDiv",
-        map: map, // Use the new map object
-        center: [-86.1268, 40.2672], // Approximate center of Indiana
-        zoom: 7, // Adjusted zoom level to fit the state
-        constraints: {
-          rotationEnabled: false // Prevents map rotation
-        }
-      });
-
-
-      /*
-      // Indiana State Boundary Layer (Use a public GIS service)
-      const indianaBoundary = new FeatureLayer({
-        url: "https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/USA_States_Generalized_Boundaries/FeatureServer",
-        definitionExpression: "STATE_ABBR = IN", // Filters to show only Indiana
-        renderer: {
-          type: "simple",
-          symbol: {
-            type: "simple-fill",
-            color: [0, 0, 0, 0],
-            outline: {
-              color: [0, 0, 0],
-              width: 3
-            }
-          }
-        },
-        outFields: ["STATE_ABBR"]
-      });
-
-      // Add layers to the map
-      map.add(indianaBoundary);
-        */
-
-        // Define a pop-up for usaeduLayer
-        const popupEduusa = {
-        "title": "EDUs",
-        "content": 
-          "<b>Name:</b> {INSTNM}<br><b>Institution Size:</b> {INSTSIZE}<br><b>Highest level offered:</b> {HLOFFER}<br><b>Website:</b> {WEBADDR}<br>"
-      }
-
-      //adding the Const for the feature layer
-      const usaeduLayer = new FeatureLayer({
-      url: "https://services2.arcgis.com/FiaPA4ga0iQKduv3/arcgis/rest/services/Colleges_and_Universities_View/FeatureServer",
-      
-      // Filter only Indiana institutions
-      definitionExpression: "STATE = 'IN'",
-
-      //adding the popup here
-      outFields: ["INSTNM","INSTSIZE","HLOFFER","WEBADDR"],
-      popupTemplate: popupEduusa
-      });
-
-      map.add(usaeduLayer);
-        
-
-      // Add the Indiana Educational Institutions layer to the map
-      // map.add(indianaEduLayer);
-
-      // Add a legend widget
-      view.when(() => {
-        const legend = new Legend({
-          view: view
-        });
-        view.ui.add(legend, "bottom-right");
-      });
-    });
-  </script>
-
-  <!-- css to make a full screen map -->
   <style>
-    html,
-    body,
-    #viewDiv {
+    html, body, #viewDiv {
       padding: 0;
       margin: 0;
       height: 100%;
@@ -122,7 +19,69 @@
   </style>
 </head>
 <body>
-  <!-- the div to displays the map  -->
+
+  <!-- Map container -->
   <div id="viewDiv"></div>
+
+  <script>
+    require([
+      "esri/config",
+      "esri/Map",
+      "esri/views/MapView",
+      "esri/Basemap",
+      "esri/layers/FeatureLayer",
+      "esri/widgets/Legend"
+    ], function(esriConfig, Map, MapView, Basemap, FeatureLayer, Legend) {
+      
+      esriConfig.apiKey = "AAPTxy8BH1VEsoebNVZXo8HurAToSzqkTfSfYwvNstkcR6B4ROIes9biB3If_N2cV-B63mJzpZpDOtLwC_2C9EnaHPnt2OXEAHjx0qnFmEGQr2RZBKmlLMgg2Gu2iEhgQ6UivYDgZkFDjZ-h_e4R3DeIg-Oaoyw9Tp7nKvieG0wdJWpkzbWNz_Bbf9Fj7CnRQsM2g4efU5bpGMJBigWp7Ftb7cYxuP24i7-Kehkkg8_jfyUo_XMFw1hUEphPpgvCbyVKAT1_4Ere8WRH"; // Ensure this is valid
+
+      // Load a custom basemap from ArcGIS Online
+      const basemap = new Basemap({
+        portalItem: {
+          id: "46685b33a34b41cfae96c667f5506c78" // Ensure this basemap is PUBLIC
+        }
+      });
+
+      // Create the map with the custom basemap
+      const map = new Map({
+        basemap: basemap
+      });
+
+      // Create the MapView
+      const view = new MapView({
+        container: "viewDiv",
+        map: map,
+        center: [-86.1268, 40.2672], // Indiana center
+        zoom: 7,
+        constraints: {
+          rotationEnabled: false
+        }
+      });
+
+      // Feature Layer: Colleges & Universities in Indiana
+      const usaeduLayer = new FeatureLayer({
+        url: "https://services2.arcgis.com/FiaPA4ga0iQKduv3/arcgis/rest/services/Colleges_and_Universities_View/FeatureServer",
+        definitionExpression: "STATE = 'IN'", // Show only Indiana institutions
+        outFields: ["INSTNM","INSTSIZE","HLOFFER","WEBADDR"],
+        popupTemplate: {
+          title: "EDUs",
+          content: "<b>Name:</b> {INSTNM}<br><b>Institution Size:</b> {INSTSIZE}<br><b>Highest level offered:</b> {HLOFFER}<br><b>Website:</b> {WEBADDR}<br>"
+        }
+      });
+
+      // ✅ Corrected: Add usaeduLayer to map
+      map.add(usaeduLayer);
+
+      // ✅ Optional: Add a legend widget
+      view.when(() => {
+        const legend = new Legend({
+          view: view
+        });
+        view.ui.add(legend, "bottom-right");
+      });
+
+    });
+  </script>
+
 </body>
 </html>
