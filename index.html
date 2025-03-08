@@ -21,16 +21,21 @@
     "esri/layers/GraphicsLayer",
     "esri/layers/FeatureLayer",
     "esri/widgets/Editor",
-    "esri/widgets/Legend"   
-    ], function(esriConfig,Map, MapView, Graphic, GraphicsLayer, FeatureLayer, Editor, Legend) {
+    "esri/widgets/Legend",
+    "esri/portal/PortalItem"   
+    ], function(esriConfig, Map, MapView, PortalItem, Graphic, GraphicsLayer, FeatureLayer, Editor, Legend) {
 
       esriConfig.apiKey = "AAPTxy8BH1VEsoebNVZXo8HurAToSzqkTfSfYwvNstkcR6B4ROIes9biB3If_N2cV-B6ipYFe5GxDfRQiFgMLzTH6209fM3ClJKM-5YVMCzcOH7TQJEzY_qITLgYuQ_O9Xc5pVnekDPHAHkxAHDnvNA75kDs-EylJ1L49ZjNHnKCjyjVY6f81joHIiGPr7X5LCYlO4x-mAxxUdWzT2Z-9uZmZbE5hUIYo-Gxuw7YZTMPp-UiNH6nce_c6lf5QtuX-hPTAT1_drTNujqi";
-      const map = new Map({
-        basemap: "arcgis-topographic" // Basemap layer
+      
+       // Load a custom basemap from ArcGIS Online
+       const basemap = new Basemap({
+        portalItem: {
+          id: "46685b33a34b41cfae96c667f5506c78" // Ensure this basemap is PUBLIC
+        }
       });
 
       const view = new MapView({
-          map: map,
+          map: Basemap,
           center: [-86.1268, 40.2672], // Longitude, latitude
           zoom: 7, // Zoom level
           container: "viewDiv" // Div element
