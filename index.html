@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>School and University Experience Mapper!</title>
+  <title>U.S. Colleges and University Experience Mapper!</title>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="description" content="" />
@@ -21,8 +21,10 @@
     "esri/layers/GraphicsLayer",
     "esri/layers/FeatureLayer",
     "esri/widgets/Editor",
-    "esri/widgets/Legend"   
-    ], function(esriConfig,Map, MapView, Graphic, GraphicsLayer, FeatureLayer, Editor, Legend) {
+    "esri/widgets/Legend",
+    "esri/widgets/Locate",
+    "esri/widgets/Search"   
+    ], function(esriConfig,Map, MapView, Search, Locate, Graphic, GraphicsLayer, FeatureLayer, Editor, Legend) {
 
       esriConfig.apiKey = "AAPTxy8BH1VEsoebNVZXo8HurAToSzqkTfSfYwvNstkcR6B4ROIes9biB3If_N2cV-B6ipYFe5GxDfRQiFgMLzTH6209fM3ClJKM-5YVMCzcOH7TQJEzY_qITLgYuQ_O9Xc5pVnekDPHAHkxAHDnvNA75kDs-EylJ1L49ZjNHnKCjyjVY6f81joHIiGPr7X5LCYlO4x-mAxxUdWzT2Z-9uZmZbE5hUIYo-Gxuw7YZTMPp-UiNH6nce_c6lf5QtuX-hPTAT1_drTNujqi";
       const map = new Map({
@@ -78,37 +80,6 @@
 
         graphicsLayer.add(pointGraphic);
 
-        /*
-        // Polyline
-        const polyline = {
-        type: "polyline",
-        paths: [
-        [-97.755996, 30.264627], 
-        [-97.752342, 30.262821], 
-        [-97.747555, 30.261223], 
-        [-97.743233, 30.260025]
-        ]
-      };
-
-      const polylineSymbol = {
-        type: "simple-line",
-        color: [255, 0, 0], // Red
-        width: 2,
-        style: "dash"
-      };
-
-      const polylineGraphic = new Graphic({
-        geometry: polyline,
-        symbol: polylineSymbol,
-        attributes: {
-          Name: "Colorado River Line",
-          Description: "A line along the river"
-        },
-        popupTemplate: { title: "{Name}", content: "{Description}" }
-      });
-
-      graphicsLayer.add(polylineGraphic);
-        */
         
       // Define a pop-up for usaeduLayer
       const popupEduusa = {
@@ -129,7 +100,9 @@
       //adding the feature layer to the map
       map.add(usaeduLayer);
 
-    
+      view.ui.add(locateBtn, {
+          position: "top-left"
+          });
 
       // Begin Editor constructor
       const editor = new Editor({
@@ -139,7 +112,19 @@
 
       // Add the widget to the view
       view.ui.add(editor, "top-right");
+       
+      // Add the Search widget
+      const searchWidget = new Search({
+        view: view, 
+        locationEnabled: true
+        });
 
+      // Add the widget to the top-right corner of the view
+      view.ui.add(searchWidget, {
+          position: "top-left"
+          });
+
+      /*
       // Add legend to to map
       const legend = new Legend({
       view: view, // Associate the legend with the map view
@@ -159,6 +144,7 @@
   });
 
   view.ui.add(legend, "bottom-right"); // Add the legend to the bottom-right of the map
+  */
 });
 
   </script>
