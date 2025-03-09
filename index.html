@@ -78,8 +78,53 @@
 
         graphicsLayer.add(pointGraphic);
 
-        
 
+        // Polyline
+        const polyline = {
+        type: "polyline",
+        paths: [
+        [-97.755996, 30.264627], 
+        [-97.752342, 30.262821], 
+        [-97.747555, 30.261223], 
+        [-97.743233, 30.260025]
+        ]
+      };
+
+      const polylineSymbol = {
+        type: "simple-line",
+        color: [255, 0, 0], // Red
+        width: 2,
+        style: "dash"
+      };
+
+      const polylineGraphic = new Graphic({
+        geometry: polyline,
+        symbol: polylineSymbol,
+        attributes: {
+          Name: "Colorado River Line",
+          Description: "A line along the river"
+        },
+        popupTemplate: { title: "{Name}", content: "{Description}" }
+      });
+
+      graphicsLayer.add(polylineGraphic);
+
+      // Polygon
+      const polygon = {
+        type: "polygon",
+        rings: [
+          [-97.7721, 30.2654],
+          [-97.7675, 30.2675],
+          [-97.7645, 30.2704],
+          [-97.7609, 30.2738],
+          [-97.7570, 30.2712],
+          [-97.7601, 30.2667],
+          [-97.7623, 30.2638],
+          [-97.7654, 30.2623],
+          [-97.7681, 30.2618],
+          [-97.7721, 30.2654]
+        ]
+      };
 
       const polygonSymbol = {
         type: "simple-fill",
@@ -100,11 +145,8 @@
         popupTemplate: { title: "{Name}", content: "{Description}" }
       });
 
-      
-
     graphicsLayer.add(polygonGraphic);    
         
-
       // Define a pop-up for usaeduLayer
       const popupEduusa = {
         "title": "EDUs",
@@ -124,8 +166,7 @@
       //adding the feature layer to the map
       map.add(usaeduLayer);
 
-
-      /*
+    
       const airportRenderer = {
         "type": "simple",
         "symbol": {
@@ -136,6 +177,7 @@
         }
       }
 
+      
       // Define a pop-up for airportlayer
       const usaairportLayer = new FeatureLayer({
       url: "https://services.arcgis.com/HRPe58bUyBqyyiCt/arcgis/rest/services/US_Airports_UW/FeatureServer",
@@ -178,13 +220,14 @@
       }
       };
 
-      // MyAirport
+       MyAirport
       const myAirports = new FeatureLayer ({
         url: "https://services.arcgis.com/HRPe58bUyBqyyiCt/arcgis/rest/services/My_Aiports/FeatureServer",
         renderer: myAirportRenderer,
         outFields: ["AirportCode"],
 
       })
+      
 
       map.add(myAirports);
 
@@ -207,8 +250,6 @@
       const pointInfos = {
       layer: myAirports
       }
-      
-      */
 
       // Begin Editor constructor
       const editor = new Editor({
