@@ -1,27 +1,95 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>U.S. Colleges and University Experience Mapper!</title>
+  <title>College and University Experience Mapper</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  
+
   <!-- ArcGIS API -->
   <link rel="stylesheet" href="https://js.arcgis.com/4.25/esri/themes/light/main.css">
   <script src="https://js.arcgis.com/4.25/"></script>
 
   <style>
-    html, body, #viewDiv {
-      padding: 0;
+    /* General Styles */
+    html, body {
       margin: 0;
-      height: 100%;
+      padding: 0;
+      font-family: 'Arial', sans-serif;
+      background-color: #f4f4f4;
+    }
+
+    /* Header Styles */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #333;
+      color: white;
+      padding: 15px 20px;
+      font-size: 24px;
+      font-weight: bold;
+      font-family: 'Trebuchet MS', sans-serif;
+    }
+
+    /* Button Styles */
+    .rate-btn {
+      background-color: #ff9800; /* Orange */
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      border-radius: 5px;
+    }
+
+    .rate-btn:hover {
+      background-color: #e68900;
+    }
+
+    /* Map and Dropdown Container */
+    .map-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       width: 100%;
+    }
+
+    #dropdown-container {
+      margin: 10px;
+      font-size: 16px;
+    }
+
+    #institutionDropdown {
+      padding: 8px;
+      font-size: 16px;
+      width: 250px;
+    }
+
+    /* Fullscreen Map */
+    #viewDiv {
+      width: 100%;
+      height: calc(100vh - 60px); /* Subtract header height */
     }
   </style>
 </head>
 <body>
 
-  <!-- Map container -->
-  <div id="viewDiv"></div>
+  <!-- Header -->
+  <div class="header">
+    <span>College and University Experience Mapper</span>
+    <button class="rate-btn" onclick="openSurvey()">Rate a School</button>
+  </div>
+
+  <!-- Dropdown for Selecting Institutions -->
+  <div class="map-container">
+    <div id="dropdown-container">
+      <label for="institutionDropdown">Select an Institution:</label>
+      <select id="institutionDropdown">
+        <option value="">-- Choose a School --</option>
+      </select>
+    </div>
+    <div id="viewDiv"></div>
+  </div>
 
   <script>
     require([
@@ -29,10 +97,8 @@
       "esri/Map",
       "esri/views/MapView",
       "esri/layers/FeatureLayer",
-      "esri/renderers/UniqueValueRenderer",
-      "esri/widgets/Legend",
-      "esri/widgets/Search"
-    ], function(esriConfig, Map, MapView, FeatureLayer, UniqueValueRenderer, Legend, Search) {
+      "esri/renderers/UniqueValueRenderer"
+    ], function(esriConfig, Map, MapView, FeatureLayer, UniqueValueRenderer) {
       
       esriConfig.apiKey = "AAPTxy8BH1VEsoebNVZXo8HurAToSzqkTfSfYwvNstkcR6B4ROIes9biB3If_N2cV-B6ipYFe5GxDfRQiFgMLzTH6209fM3ClJKM-5YVMCzcOH7TQJEzY_qITLgYuQ_O9Xc5pVnekDPHAHkxAHDnvNA75kDs-EylJ1L49ZjNHnKCjyjVY6f81joHIiGPr7X5LCYlO4x-mAxxUdWzT2Z-9uZmZbE5hUIYo-Gxuw7YZTMPp-UiNH6nce_c6lf5QtuX-hPTAT1_drTNujqi"; // Ensure this is valid
 
@@ -47,12 +113,6 @@
         zoom: 7
       });
 
-      // ✅ Feature Layer: U.S. Colleges & Universities (Used for Attribute Lookup)
-      const usaeduLayer = new FeatureLayer({
-        url: "https://services2.arcgis.com/FiaPA4ga0iQKduv3/arcgis/rest/services/Colleges_and_Universities_View/FeatureServer",
-        outFields: ["INSTNM", "INSTSIZE", "WEBADDR"], // Ensure we fetch school details
-      });
-
       // ✅ Define Color-Coding Based on Ratings (field_5)
       const ratingRenderer = new UniqueValueRenderer({
         field: "field_5", // Rating field
@@ -62,60 +122,74 @@
           { value: 3, symbol: { type: "simple-marker", color: "yellow", size: 8 }, label: "3 - Neutral" },
           { value: 4, symbol: { type: "simple-marker", color: "lightgreen", size: 8 }, label: "4 - Good" },
           { value: 5, symbol: { type: "simple-marker", color: "green", size: 8 }, label: "5 - Excellent" }
-        ]
+        ],
+        defaultSymbol: { type: "simple-marker", color: "gray", size: 8 } // Default if no rating
       });
 
       // ✅ Feature Layer: Survey Responses (Only Schools That Received a Rating)
       const surveylayer = new FeatureLayer({
         url: "https://services.arcgis.com/HRPe58bUyBqyyiCt/arcgis/rest/services/survey123_31be1eb904cb4bac93b3001f77aadc8d_results/FeatureServer",
-        outFields: ["choose_an_institution", "field_5"], // Ensure we have the survey rating
-        renderer: ratingRenderer, // Apply the rating-based colors
+        outFields: ["choose_an_institution", "field_5"], // Ensure institution name & rating are available
+        renderer: ratingRenderer, // Apply color coding
         popupTemplate: {
-          title: "{INSTNM}",
-          content: async function(event) {
-            const graphic = event.graphic;
-            const instID = graphic.attributes.choose_an_institution; // Get institution ID
-
-            // Query the usaeduLayer to get institution details
-            const query = usaeduLayer.createQuery();
-            query.where = `INSTNM = '${choose_an_institution}'`; // Match on Institution ID
-            query.outFields = ["INSTNM", "INSTSIZE", "WEBADDR"];
-
-            const response = await usaeduLayer.queryFeatures(query);
-            if (response.features.length > 0) {
-              const institution = response.features[0].attributes;
-              return `
-                <b>Name:</b> ${institution.INSTNM}<br>
-                <b>Size:</b> ${institution.INSTSIZE}<br>
-                <b>Website:</b> <a href="${institution.WEBADDR}" target="_blank">${institution.WEBADDR}</a><br>
-                <b>Rating:</b> ${graphic.attributes.field_5} / 5
-              `;
-            } else {
-              return `<b>Rating:</b> ${graphic.attributes.field_5} / 5 <br> <i>No additional details available</i>`;
-            }
-          }
+          title: "{choose_an_institution}",
+          content: "<b>Rating:</b> {field_5} / 5"
         }
       });
 
       map.add(surveylayer); // ✅ Only adding the survey layer
 
-      // ✅ Search Widget
-      const searchWidget = new Search({
-        view: view
-      });
-      view.ui.add(searchWidget, "top-left");
+      // ✅ Populate Dropdown with Institutions
+      function populateDropdown() {
+        const query = surveylayer.createQuery();
+        query.outFields = ["choose_an_institution"];
+        query.returnDistinctValues = true;
 
-      // ✅ Legend (Updated for Ratings)
-      const legend = new Legend({
-        view: view,
-        layerInfos: [{
-          layer: surveylayer,
-          title: "Survey Ratings for Institutions"
-        }]
-      });
-      view.ui.add(legend, "bottom-right");
+        surveylayer.queryFeatures(query).then(response => {
+          const dropdown = document.getElementById("institutionDropdown");
+          response.features.forEach(feature => {
+            const name = feature.attributes.choose_an_institution;
+            if (name) {
+              const option = document.createElement("option");
+              option.value = name;
+              option.textContent = name;
+              dropdown.appendChild(option);
+            }
+          });
+        });
+      }
 
+      // ✅ Center Map on Selected Institution
+      document.getElementById("institutionDropdown").addEventListener("change", function() {
+        const selectedName = this.value;
+        if (!selectedName) return;
+
+        const query = surveylayer.createQuery();
+        query.where = `choose_an_institution = '${selectedName}'`;
+        query.returnGeometry = true;
+        query.outFields = ["choose_an_institution"];
+
+        surveylayer.queryFeatures(query).then(response => {
+          if (response.features.length > 0) {
+            const feature = response.features[0];
+            view.goTo({
+              target: feature.geometry,
+              zoom: 14
+            });
+          }
+        });
+      });
+
+      // ✅ Run dropdown population after layer loads
+      view.when(() => {
+        populateDropdown();
+      });
     });
+
+    // ✅ Open Survey in New Tab
+    function openSurvey() {
+      window.open("YOUR_SURVEY_URL", "_blank");
+    }
   </script>
 
 </body>
