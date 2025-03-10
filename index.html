@@ -49,13 +49,13 @@
       // ✅ Feature Layer: Survey Responses (Only Schools That Received a Rating)
       const surveylayer = new FeatureLayer({
         url: "https://services.arcgis.com/HRPe58bUyBqyyiCt/arcgis/rest/services/survey123_31be1eb904cb4bac93b3001f77aadc8d_results/FeatureServer",
-        outFields: ["INSTNM", "INSTSIZE", "WEBADDR", "RATING"], // Ensure rating field is included
+        outFields: ["INSTNM", "INSTSIZE", "WEBADDR", "field_5"], // Ensure rating field is included
         popupTemplate: {
           title: "{INSTNM}",
           content: `
             <b>Institution Size:</b> {INSTSIZE}<br>
             <b>Website:</b> <a href="{WEBADDR}" target="_blank">{WEBADDR}</a><br>
-            <b>Rating:</b> {RATING} / 5
+            <b>Rating:</b> {field_5} / 5
           `
         }
       });
