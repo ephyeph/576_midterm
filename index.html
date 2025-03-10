@@ -10,7 +10,7 @@
   <script src="https://js.arcgis.com/4.25/"></script>
 
   <style>
-    /* General Styles */
+    /* General Page Styling */
     html, body {
       margin: 0;
       padding: 0;
@@ -18,7 +18,7 @@
       background-color: #f4f4f4;
     }
 
-    /* Header Styles */
+    /* Header Styling */
     .header {
       display: flex;
       justify-content: space-between;
@@ -31,7 +31,7 @@
       font-family: 'Trebuchet MS', sans-serif;
     }
 
-    /* Button Styles */
+    /* Button Styling */
     .rate-btn {
       background-color: #ff9800; /* Orange */
       color: white;
@@ -46,7 +46,7 @@
       background-color: #e68900;
     }
 
-    /* Map and Dropdown Container */
+    /* Map & Dropdown Styling */
     .map-container {
       display: flex;
       flex-direction: column;
@@ -74,7 +74,7 @@
 </head>
 <body>
 
-  <!-- Header -->
+  <!-- Header Section -->
   <div class="header">
     <span>College and University Experience Mapper</span>
     <button class="rate-btn" onclick="openSurvey()">Rate a School</button>
@@ -97,49 +97,72 @@
       "esri/Map",
       "esri/views/MapView",
       "esri/layers/FeatureLayer",
-      "esri/renderers/UniqueValueRenderer"
-    ], function(esriConfig, Map, MapView, FeatureLayer, UniqueValueRenderer) {
+      "esri/renderers/UniqueValueRenderer",
+      "esri/widgets/Legend"
+    ], function(esriConfig, Map, MapView, FeatureLayer, UniqueValueRenderer, Legend) {
       
-      esriConfig.apiKey = "AAPTxy8BH1VEsoebNVZXo8HurAToSzqkTfSfYwvNstkcR6B4ROIes9biB3If_N2cV-B6ipYFe5GxDfRQiFgMLzTH6209fM3ClJKM-5YVMCzcOH7TQJEzY_qITLgYuQ_O9Xc5pVnekDPHAHkxAHDnvNA75kDs-EylJ1L49ZjNHnKCjyjVY6f81joHIiGPr7X5LCYlO4x-mAxxUdWzT2Z-9uZmZbE5hUIYo-Gxuw7YZTMPp-UiNH6nce_c6lf5QtuX-hPTAT1_drTNujqi"; // Ensure this is valid
+      // Set API Key
+      esriConfig.apiKey = "AAPTxy8BH1VEsoebNVZXo8HurAToSzqkTfSfYwvNstkcR6B4ROIes9biB3If_N2cV-B6ipYFe5GxDfRQiFgMLzTH6209fM3ClJKM-5YVMCzcOH7TQJEzY_qITLgYuQ_O9Xc5pVnekDPHAHkxAHDnvNA75kDs-EylJ1L49ZjNHnKCjyjVY6f81joHIiGPr7X5LCYlO4x-mAxxUdWzT2Z-9uZmZbE5hUIYo-Gxuw7YZTMPp-UiNH6nce_c6lf5QtuX-hPTAT1_drTNujqi"; 
 
+      // Create a map using the topographic basemap
       const map = new Map({
         basemap: "arcgis-topographic"
       });
 
+      // Set up the MapView with a center point near the geographic center of the U.S.
       const view = new MapView({
         container: "viewDiv",
         map: map,
-        center: [-86.1268, 40.2672], // Indiana center
-        zoom: 7
+        center: [-98.5795, 39.8283], // Centered on mainland U.S.
+        zoom: 5 // Zoom level appropriate for a national view
       });
 
-      // ✅ Define Color-Coding Based on Ratings (field_5)
+      // Define a color-coded renderer based on survey rating (field_5)
       const ratingRenderer = new UniqueValueRenderer({
-        field: "field_5", // Rating field
+        field: "field_5", // Survey rating field
         uniqueValueInfos: [
           { value: 1, symbol: { type: "simple-marker", color: "red", size: 8 }, label: "1 - Poor" },
           { value: 2, symbol: { type: "simple-marker", color: "orange", size: 8 }, label: "2 - Fair" },
           { value: 3, symbol: { type: "simple-marker", color: "yellow", size: 8 }, label: "3 - Neutral" },
           { value: 4, symbol: { type: "simple-marker", color: "lightgreen", size: 8 }, label: "4 - Good" },
           { value: 5, symbol: { type: "simple-marker", color: "green", size: 8 }, label: "5 - Excellent" }
-        ],
-        defaultSymbol: { type: "simple-marker", color: "gray", size: 8 } // Default if no rating
+        ]
       });
 
-      // ✅ Feature Layer: Survey Responses (Only Schools That Received a Rating)
+      // Create a FeatureLayer to display survey responses
       const surveylayer = new FeatureLayer({
         url: "https://services.arcgis.com/HRPe58bUyBqyyiCt/arcgis/rest/services/survey123_31be1eb904cb4bac93b3001f77aadc8d_results/FeatureServer",
         outFields: ["choose_an_institution", "field_5"], // Ensure institution name & rating are available
         renderer: ratingRenderer, // Apply color coding
         popupTemplate: {
           title: "{choose_an_institution}",
-          content: "<b>Rating:</b> {field_5} / 5"
+          content: function(event) {
+            const graphic = event.graphic;
+            const schoolName = graphic.attributes.choose_an_institution;
+            const ratingQuery = surveylayer.createQuery();
+            ratingQuery.where = `choose_an_institution = '${schoolName}'`;
+            ratingQuery.outFields = ["field_5"];
+
+            // Query the layer to get all ratings for the selected school
+            return surveylayer.queryFeatures(ratingQuery).then(response => {
+              let totalRating = 0;
+              let count = response.features.length;
+
+              response.features.forEach(feature => {
+                totalRating += feature.attributes.field_5;
+              });
+
+              const avgRating = count > 0 ? Math.round(totalRating / count) : "No Ratings";
+              return `<b>Rating:</b> ${avgRating} / 5 (${count} ratings)`;
+            });
+          }
         }
       });
 
-      map.add(surveylayer); // ✅ Only adding the survey layer
+      // Add only the survey layer to the map
+      map.add(surveylayer);
 
-      // ✅ Populate Dropdown with Institutions
+      // Populate dropdown with institutions that have been rated
       function populateDropdown() {
         const query = surveylayer.createQuery();
         query.outFields = ["choose_an_institution"];
@@ -159,7 +182,7 @@
         });
       }
 
-      // ✅ Center Map on Selected Institution
+      // Center the map when an institution is selected from the dropdown
       document.getElementById("institutionDropdown").addEventListener("change", function() {
         const selectedName = this.value;
         if (!selectedName) return;
@@ -167,7 +190,6 @@
         const query = surveylayer.createQuery();
         query.where = `choose_an_institution = '${selectedName}'`;
         query.returnGeometry = true;
-        query.outFields = ["choose_an_institution"];
 
         surveylayer.queryFeatures(query).then(response => {
           if (response.features.length > 0) {
@@ -180,13 +202,23 @@
         });
       });
 
-      // ✅ Run dropdown population after layer loads
+      // Add a legend to explain color coding
+      const legend = new Legend({
+        view: view,
+        layerInfos: [{
+          layer: surveylayer,
+          title: "Survey Ratings for Institutions"
+        }]
+      });
+      view.ui.add(legend, "bottom-right");
+
+      // Populate the dropdown once the layer is loaded
       view.when(() => {
         populateDropdown();
       });
     });
 
-    // ✅ Open Survey in New Tab
+    // Open the survey form in a new tab
     function openSurvey() {
       window.open("https://arcg.is/1nffLf0", "_blank");
     }
