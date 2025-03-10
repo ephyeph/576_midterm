@@ -1,1 +1,1 @@
-576 midterm: Indiana School & University Experience Mapper
+576 midterm: U.S University & College Experience Mapper
