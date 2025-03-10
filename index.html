@@ -29,11 +29,12 @@
       "esri/Map",
       "esri/views/MapView",
       "esri/layers/FeatureLayer",
+      "esri/renderers/UniqueValueRenderer",
       "esri/widgets/Legend",
       "esri/widgets/Search"
-    ], function(esriConfig, Map, MapView, FeatureLayer, Legend, Search) {
+    ], function(esriConfig, Map, MapView, FeatureLayer, UniqueValueRenderer, Legend, Search) {
       
-      esriConfig.apiKey = "AAPTxy8BH1VEsoebNVZXo8HurAToSzqkTfSfYwvNstkcR6B4ROIes9biB3If_N2cV-B6ipYFe5GxDfRQiFgMLzTH6209fM3ClJKM-5YVMCzcOH7TQJEzY_qITLgYuQ_O9Xc5pVnekDPHAHkxAHDnvNA75kDs-EylJ1L49ZjNHnKCjyjVY6f81joHIiGPr7X5LCYlO4x-mAxxUdWzT2Z-9uZmZbE5hUIYo-Gxuw7YZTMPp-UiNH6nce_c6lf5QtuX-hPTAT1_drTNujqi"; // Ensure this is valid
+      esriConfig.apiKey = "YOUR_API_KEY"; // Ensure this is valid
 
       const map = new Map({
         basemap: "arcgis-topographic"
@@ -46,17 +47,54 @@
         zoom: 7
       });
 
+      // ✅ Feature Layer: U.S. Colleges & Universities (Used for Attribute Lookup)
+      const usaeduLayer = new FeatureLayer({
+        url: "https://services2.arcgis.com/FiaPA4ga0iQKduv3/arcgis/rest/services/Colleges_and_Universities_View/FeatureServer",
+        outFields: ["INSTNM", "INSTSIZE", "WEBADDR"], // Ensure we fetch school details
+      });
+
+      // ✅ Define Color-Coding Based on Ratings (field_5)
+      const ratingRenderer = new UniqueValueRenderer({
+        field: "field_5", // Rating field
+        uniqueValueInfos: [
+          { value: 1, symbol: { type: "simple-marker", color: "red", size: 8 }, label: "1 - Poor" },
+          { value: 2, symbol: { type: "simple-marker", color: "orange", size: 8 }, label: "2 - Fair" },
+          { value: 3, symbol: { type: "simple-marker", color: "yellow", size: 8 }, label: "3 - Neutral" },
+          { value: 4, symbol: { type: "simple-marker", color: "lightgreen", size: 8 }, label: "4 - Good" },
+          { value: 5, symbol: { type: "simple-marker", color: "green", size: 8 }, label: "5 - Excellent" }
+        ],
+        defaultSymbol: { type: "simple-marker", color: "gray", size: 8 } // Default if no rating
+      });
+
       // ✅ Feature Layer: Survey Responses (Only Schools That Received a Rating)
       const surveylayer = new FeatureLayer({
         url: "https://services.arcgis.com/HRPe58bUyBqyyiCt/arcgis/rest/services/survey123_31be1eb904cb4bac93b3001f77aadc8d_results/FeatureServer",
-        outFields: ["INSTNM", "INSTSIZE", "WEBADDR", "field_5"], // Ensure rating field is included
+        outFields: ["INST_ID", "field_5"], // Ensure we have the survey rating
+        renderer: ratingRenderer, // Apply the rating-based colors
         popupTemplate: {
           title: "{INSTNM}",
-          content: `
-            <b>Institution Size:</b> {INSTSIZE}<br>
-            <b>Website:</b> <a href="{WEBADDR}" target="_blank">{WEBADDR}</a><br>
-            <b>Rating:</b> {field_5} / 5
-          `
+          content: async function(event) {
+            const graphic = event.graphic;
+            const instID = graphic.attributes.INST_ID; // Get institution ID
+
+            // Query the usaeduLayer to get institution details
+            const query = usaeduLayer.createQuery();
+            query.where = `INST_ID = '${instID}'`; // Match on Institution ID
+            query.outFields = ["INSTNM", "INSTSIZE", "WEBADDR"];
+
+            const response = await usaeduLayer.queryFeatures(query);
+            if (response.features.length > 0) {
+              const institution = response.features[0].attributes;
+              return `
+                <b>Name:</b> ${institution.INSTNM}<br>
+                <b>Size:</b> ${institution.INSTSIZE}<br>
+                <b>Website:</b> <a href="${institution.WEBADDR}" target="_blank">${institution.WEBADDR}</a><br>
+                <b>Rating:</b> ${graphic.attributes.field_5} / 5
+              `;
+            } else {
+              return `<b>Rating:</b> ${graphic.attributes.field_5} / 5 <br> <i>No additional details available</i>`;
+            }
+          }
         }
       });
 
@@ -68,7 +106,7 @@
       });
       view.ui.add(searchWidget, "top-left");
 
-      // ✅ Legend
+      // ✅ Legend (Updated for Ratings)
       const legend = new Legend({
         view: view,
         layerInfos: [{
