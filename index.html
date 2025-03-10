@@ -63,10 +63,10 @@
       // ✅ Feature Layer: Survey Results
       const surveylayer = new FeatureLayer({
         url: "https://services.arcgis.com/HRPe58bUyBqyyiCt/arcgis/rest/services/survey123_31be1eb904cb4bac93b3001f77aadc8d_results/FeatureServer",
-        outFields: ["*"], // Ensure features render
+        outFields: ["*"], 
         popupTemplate: {
           title: "Survey Result",
-          content: "<b>Response:</b> {response_field}" // Change "response_field" to a real field name
+          content: "<b>Response:</b> {field_5}" 
         }
       });
       map.add(surveylayer);
