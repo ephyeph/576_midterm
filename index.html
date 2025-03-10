@@ -28,16 +28,12 @@
       "esri/config",
       "esri/Map",
       "esri/views/MapView",
-      "esri/Graphic",
-      "esri/layers/GraphicsLayer",
       "esri/layers/FeatureLayer",
-      "esri/widgets/Editor",
       "esri/widgets/Legend",
-      "esri/widgets/Locate",
       "esri/widgets/Search"
-    ], function(esriConfig, Map, MapView, Graphic, GraphicsLayer, FeatureLayer, Editor, Legend, Locate, Search) {
+    ], function(esriConfig, Map, MapView, FeatureLayer, Legend, Search) {
       
-      esriConfig.apiKey = "AAPTxy8BH1VEsoebNVZXo8HurAToSzqkTfSfYwvNstkcR6B4ROIes9biB3If_N2cV-B6ipYFe5GxDfRQiFgMLzTH6209fM3ClJKM-5YVMCzcOH7TQJEzY_qITLgYuQ_O9Xc5pVnekDPHAHkxAHDnvNA75kDs-EylJ1L49ZjNHnKCjyjVY6f81joHIiGPr7X5LCYlO4x-mAxxUdWzT2Z-9uZmZbE5hUIYo-Gxuw7YZTMPp-UiNH6nce_c6lf5QtuX-hPTAT1_drTNujqi"; // Ensure this is valid
+      esriConfig.apiKey = "YOUR_API_KEY"; // Ensure this is valid
 
       const map = new Map({
         basemap: "arcgis-topographic"
@@ -50,37 +46,21 @@
         zoom: 7
       });
 
-      // ✅ Locate Widget (Fixed)
-      const locateBtn = new Locate({
-        view: view
-      });
-      view.ui.add(locateBtn, "top-left");
-
-      // ✅ Graphics Layer
-      const graphicsLayer = new GraphicsLayer();
-      map.add(graphicsLayer);
-
-      // ✅ Feature Layer: Survey Results
+      // ✅ Feature Layer: Survey Responses (Only Schools That Received a Rating)
       const surveylayer = new FeatureLayer({
         url: "https://services.arcgis.com/HRPe58bUyBqyyiCt/arcgis/rest/services/survey123_31be1eb904cb4bac93b3001f77aadc8d_results/FeatureServer",
-        outFields: ["*"], 
+        outFields: ["INSTNM", "INSTSIZE", "WEBADDR", "RATING"], // Ensure rating field is included
         popupTemplate: {
-          title: "Survey Result",
-          content: "<b>Response:</b> {field_5}" 
+          title: "{INSTNM}",
+          content: `
+            <b>Institution Size:</b> {INSTSIZE}<br>
+            <b>Website:</b> <a href="{WEBADDR}" target="_blank">{WEBADDR}</a><br>
+            <b>Rating:</b> {RATING} / 5
+          `
         }
       });
-      map.add(surveylayer);
 
-      // ✅ Feature Layer: U.S. Colleges & Universities
-      const usaeduLayer = new FeatureLayer({
-        url: "https://services2.arcgis.com/FiaPA4ga0iQKduv3/arcgis/rest/services/Colleges_and_Universities_View/FeatureServer",
-        outFields: ["INSTNM", "INSTSIZE", "HLOFFER", "WEBADDR"],
-        popupTemplate: {
-          title: "EDUs",
-          content: "<b>Name:</b> {INSTNM}<br><b>Size:</b> {INSTSIZE}<br><b>Highest Level Offered:</b> {HLOFFER}<br><b>Website:</b> {WEBADDR}"
-        }
-      });
-      map.add(usaeduLayer);
+      map.add(surveylayer); // ✅ Only adding the survey layer
 
       // ✅ Search Widget
       const searchWidget = new Search({
@@ -88,28 +68,13 @@
       });
       view.ui.add(searchWidget, "top-left");
 
-      // ✅ Editor Widget (Fixed)
-      const editor = new Editor({
-        view: view,
-        layerInfos: [{
-          layer: surveylayer
-        }]
-      });
-      view.ui.add(editor, "top-right");
-
-      // ✅ Legend (Removed Undefined Layers)
+      // ✅ Legend
       const legend = new Legend({
         view: view,
-        layerInfos: [
-          {
-            layer: surveylayer,
-            title: "Survey Responses"
-          },
-          {
-            layer: usaeduLayer,
-            title: "Colleges & Universities"
-          }
-        ]
+        layerInfos: [{
+          layer: surveylayer,
+          title: "Survey Ratings for Institutions"
+        }]
       });
       view.ui.add(legend, "bottom-right");
 
