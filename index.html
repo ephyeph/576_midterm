@@ -62,24 +62,23 @@
           { value: 3, symbol: { type: "simple-marker", color: "yellow", size: 8 }, label: "3 - Neutral" },
           { value: 4, symbol: { type: "simple-marker", color: "lightgreen", size: 8 }, label: "4 - Good" },
           { value: 5, symbol: { type: "simple-marker", color: "green", size: 8 }, label: "5 - Excellent" }
-        ],
-        defaultSymbol: { type: "simple-marker", color: "gray", size: 8 } // Default if no rating
+        ]
       });
 
       // ✅ Feature Layer: Survey Responses (Only Schools That Received a Rating)
       const surveylayer = new FeatureLayer({
         url: "https://services.arcgis.com/HRPe58bUyBqyyiCt/arcgis/rest/services/survey123_31be1eb904cb4bac93b3001f77aadc8d_results/FeatureServer",
-        outFields: ["INST_ID", "field_5"], // Ensure we have the survey rating
+        outFields: ["choose_an_institution", "field_5"], // Ensure we have the survey rating
         renderer: ratingRenderer, // Apply the rating-based colors
         popupTemplate: {
           title: "{INSTNM}",
           content: async function(event) {
             const graphic = event.graphic;
-            const instID = graphic.attributes.INST_ID; // Get institution ID
+            const instID = graphic.attributes.choose_an_institution; // Get institution ID
 
             // Query the usaeduLayer to get institution details
             const query = usaeduLayer.createQuery();
-            query.where = `INST_ID = '${instID}'`; // Match on Institution ID
+            query.where = `INSTNM = '${choose_an_institution}'`; // Match on Institution ID
             query.outFields = ["INSTNM", "INSTSIZE", "WEBADDR"];
 
             const response = await usaeduLayer.queryFeatures(query);
