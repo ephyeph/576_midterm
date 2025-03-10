@@ -2,177 +2,119 @@
 <html lang="en">
 <head>
   <title>U.S. Colleges and University Experience Mapper!</title>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta name="description" content="" />
-
-  <!-- calls for the arcgis api's CSS file and JS library. -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <!-- ArcGIS API -->
   <link rel="stylesheet" href="https://js.arcgis.com/4.25/esri/themes/light/main.css">
   <script src="https://js.arcgis.com/4.25/"></script>
 
-  <!-- Adding the modules, API key, and map constant needed for a full screen map app -->
-  <script>
-  
-  require([  
-    "esri/config",  
-    "esri/Map",  
-    "esri/views/MapView",   
-    "esri/Graphic",  
-    "esri/layers/GraphicsLayer",
-    "esri/layers/FeatureLayer",
-    "esri/widgets/Editor",
-    "esri/widgets/Legend",
-    "esri/widgets/Locate",
-    "esri/widgets/Search"   
-    ], function(esriConfig,Map, MapView, Search, Locate, Graphic, GraphicsLayer, FeatureLayer, Editor, Legend) {
-
-      esriConfig.apiKey = "AAPTxy8BH1VEsoebNVZXo8HurAToSzqkTfSfYwvNstkcR6B4ROIes9biB3If_N2cV-B6ipYFe5GxDfRQiFgMLzTH6209fM3ClJKM-5YVMCzcOH7TQJEzY_qITLgYuQ_O9Xc5pVnekDPHAHkxAHDnvNA75kDs-EylJ1L49ZjNHnKCjyjVY6f81joHIiGPr7X5LCYlO4x-mAxxUdWzT2Z-9uZmZbE5hUIYo-Gxuw7YZTMPp-UiNH6nce_c6lf5QtuX-hPTAT1_drTNujqi";
-      const map = new Map({
-        basemap: "arcgis-topographic" // Basemap layer
-      });
-
-      const view = new MapView({
-          map: map,
-          center: [-86.1268, 40.2672], // Longitude, latitude
-          zoom: 7, // Zoom level
-          container: "viewDiv" // Div element
-        });
-
-
-       // Point 
-        const graphicsLayer = new GraphicsLayer();  
-        map.add(graphicsLayer);
-
-        const point = { //Create a point  
-          type: "point",  
-          longitude: -97.750689,    //long lat of Stevie Ray Vaughan Statue
-          latitude: 30.263098
-        };
-
-        const simpleMarkerSymbol = {  
-          type: "simple-marker",
-          style: "square",  
-          color: [0, 0, 139],  // Color of blues rock
-          outline: {  
-            color: [255, 255, 255], // White  
-            width: 1
-          }  
-        };
-
-        const popupTemplate = {
-          title: "{Name}",
-          content: "{Description}"
-      }
-      const attributes = {
-          Name: "Stevie Ray Vaughan Statue",
-          Description: "A bronze sculpture of Stevie Ray Vaughan by Ralph Helmick"
-      }
-
-        const pointGraphic = new Graphic({  
-          // creating the point
-          geometry: point,  
-          symbol: simpleMarkerSymbol,
-          
-          //adding popup properties
-          attributes: attributes,
-          popupTemplate: popupTemplate
-        });
-
-        graphicsLayer.add(pointGraphic);
-
-        // Create featurelayer from feature service 
-          const surverylayer = new FeatureLayer({ 
-            // URL to the service 
-            url: "https://services.arcgis.com/HRPe58bUyBqyyiCt/arcgis/rest/services/survey123_31be1eb904cb4bac93b3001f77aadc8d_results/FeatureServer" //Your item URL Goes Here
-          });
-
-          map.add(surverylayer);
-        
-      // Define a pop-up for usaeduLayer
-      const popupEduusa = {
-        "title": "EDUs",
-        "content": 
-          "<b>Name:</b> {INSTNM}<br><b>Institution Size:</b> {INSTSIZE}<br><b>Highest level offered:</b> {HLOFFER}<br><b>Website:</b> {WEBADDR}<br>"
-      }
-
-      //adding the Const for the feature layer
-      const usaeduLayer = new FeatureLayer({
-      url: "https://services2.arcgis.com/FiaPA4ga0iQKduv3/arcgis/rest/services/Colleges_and_Universities_View/FeatureServer",
-
-      //adding the popup here
-      outFields: ["INSTNM","INSTSIZE","HLOFFER","WEBADDR"],
-      popupTemplate: popupEduusa
-      });
-
-      //adding the feature layer to the map
-      map.add(usaeduLayer);
-
-      view.ui.add(locateBtn, {
-          position: "top-left"
-          });
-
-      // Begin Editor constructor
-      const editor = new Editor({
-      view: view,
-      layerInfos: [pointInfos]
-      }); // End Editor constructor
-
-      // Add the widget to the view
-      view.ui.add(editor, "top-right");
-       
-      // Add the Search widget
-      const searchWidget = new Search({
-        view: view, 
-        locationEnabled: true
-        });
-
-      // Add the widget to the top-right corner of the view
-      view.ui.add(searchWidget, {
-          position: "top-left"
-          });
-
-      
-      // Add legend to to map
-      const legend = new Legend({
-      view: view, // Associate the legend with the map view
-      layerInfos: [
-        {
-          layer: myAirports,
-          title: "My Airports"
-        },
-        {
-          layer: usaairportLayer,
-          title: "US Airports"
-        },
-        {
-          layer: heliportLayer,
-          title: "Heliports"
-        }]
-  });
-
-  view.ui.add(legend, "bottom-right"); // Add the legend to the bottom-right of the map
-
-});
-
-  </script>
-
-  <!-- css to make a full screen map -->
   <style>
-    html,
-    body,
-    #viewDiv {
+    html, body, #viewDiv {
       padding: 0;
       margin: 0;
       height: 100%;
       width: 100%;
     }
   </style>
-
 </head>
 <body>
 
-  <!-- the div to displays the map  -->
+  <!-- Map container -->
   <div id="viewDiv"></div>
+
+  <script>
+    require([
+      "esri/config",
+      "esri/Map",
+      "esri/views/MapView",
+      "esri/Graphic",
+      "esri/layers/GraphicsLayer",
+      "esri/layers/FeatureLayer",
+      "esri/widgets/Editor",
+      "esri/widgets/Legend",
+      "esri/widgets/Locate",
+      "esri/widgets/Search"
+    ], function(esriConfig, Map, MapView, Graphic, GraphicsLayer, FeatureLayer, Editor, Legend, Locate, Search) {
+      
+      esriConfig.apiKey = "AAPTxy8BH1VEsoebNVZXo8HurAToSzqkTfSfYwvNstkcR6B4ROIes9biB3If_N2cV-B6ipYFe5GxDfRQiFgMLzTH6209fM3ClJKM-5YVMCzcOH7TQJEzY_qITLgYuQ_O9Xc5pVnekDPHAHkxAHDnvNA75kDs-EylJ1L49ZjNHnKCjyjVY6f81joHIiGPr7X5LCYlO4x-mAxxUdWzT2Z-9uZmZbE5hUIYo-Gxuw7YZTMPp-UiNH6nce_c6lf5QtuX-hPTAT1_drTNujqi"; // Ensure this is valid
+
+      const map = new Map({
+        basemap: "arcgis-topographic"
+      });
+
+      const view = new MapView({
+        container: "viewDiv",
+        map: map,
+        center: [-86.1268, 40.2672], // Indiana center
+        zoom: 7
+      });
+
+      // ✅ Locate Widget (Fixed)
+      const locateBtn = new Locate({
+        view: view
+      });
+      view.ui.add(locateBtn, "top-left");
+
+      // ✅ Graphics Layer
+      const graphicsLayer = new GraphicsLayer();
+      map.add(graphicsLayer);
+
+      // ✅ Feature Layer: Survey Results
+      const surveylayer = new FeatureLayer({
+        url: "https://services.arcgis.com/HRPe58bUyBqyyiCt/arcgis/rest/services/survey123_31be1eb904cb4bac93b3001f77aadc8d_results/FeatureServer",
+        outFields: ["*"], // Ensure features render
+        popupTemplate: {
+          title: "Survey Result",
+          content: "<b>Response:</b> {response_field}" // Change "response_field" to a real field name
+        }
+      });
+      map.add(surveylayer);
+
+      // ✅ Feature Layer: U.S. Colleges & Universities
+      const usaeduLayer = new FeatureLayer({
+        url: "https://services2.arcgis.com/FiaPA4ga0iQKduv3/arcgis/rest/services/Colleges_and_Universities_View/FeatureServer",
+        outFields: ["INSTNM", "INSTSIZE", "HLOFFER", "WEBADDR"],
+        popupTemplate: {
+          title: "EDUs",
+          content: "<b>Name:</b> {INSTNM}<br><b>Size:</b> {INSTSIZE}<br><b>Highest Level Offered:</b> {HLOFFER}<br><b>Website:</b> {WEBADDR}"
+        }
+      });
+      map.add(usaeduLayer);
+
+      // ✅ Search Widget
+      const searchWidget = new Search({
+        view: view
+      });
+      view.ui.add(searchWidget, "top-left");
+
+      // ✅ Editor Widget (Fixed)
+      const editor = new Editor({
+        view: view,
+        layerInfos: [{
+          layer: surveylayer
+        }]
+      });
+      view.ui.add(editor, "top-right");
+
+      // ✅ Legend (Removed Undefined Layers)
+      const legend = new Legend({
+        view: view,
+        layerInfos: [
+          {
+            layer: surveylayer,
+            title: "Survey Responses"
+          },
+          {
+            layer: usaeduLayer,
+            title: "Colleges & Universities"
+          }
+        ]
+      });
+      view.ui.add(legend, "bottom-right");
+
+    });
+  </script>
 
 </body>
 </html>
